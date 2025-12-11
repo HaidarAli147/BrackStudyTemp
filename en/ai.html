@@ -11,7 +11,6 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Correct Google Fonts link -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -73,18 +72,13 @@
 
     <!-- AI Agent JavaScript Logic -->
     <script>
-      // Secure backend proxy endpoint
       const PROXY_SERVER_URL = 'http://localhost:3000/api/tutor';
-
-      // API Key (⚠️ In production, keep this hidden in backend!)
-      const API_KEY = "API_KEY";
 
       const chatHistory = document.getElementById('chatHistory');
       const userInput = document.getElementById('userInput');
       const sendButton = document.getElementById('sendButton');
       const loadingIndicator = document.getElementById('loadingIndicator');
 
-      // Render message
       function renderMessage(text, sender) {
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', sender);
@@ -94,18 +88,16 @@
         contentDiv.textContent = text;
 
         messageDiv.appendChild(contentDiv);
-        chatHistory.appendChild(messageDiv); // ✅ fixed: append full messageDiv
+        chatHistory.appendChild(messageDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
       }
 
-      // Replace initial message
       const initialMessageDiv = document.getElementById('initialMessage');
       if (initialMessageDiv) {
         initialMessageDiv.remove();
         renderMessage("Hello! I'm your AI tutor. How can I help you with your web and coding concepts?", 'ai');
       }
 
-      // Send message
       async function sendMessage() {
         const query = userInput.value.trim();
         if (!query) return;
@@ -118,33 +110,25 @@
         try {
           const response = await fetch(PROXY_SERVER_URL, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${API_KEY}` // ✅ added API key
-            },
-            body: JSON.stringify({ query: query })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query })
           });
 
-          if (!response.ok) {
-            throw new Error(`Network response was not ok: ${response.statusText}`);
-          }
+          if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
 
           const result = await response.json();
-          console.log("API raw result:", result);
-
           const aiText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-          renderMessage(aiText || "Sorry, I received an empty or invalid response from the AI model.", 'ai');
+          renderMessage(aiText || "Sorry, I received an empty or invalid response.", 'ai');
 
         } catch (error) {
           console.error("Fetch Error:", error);
-          renderMessage("Error: Could not connect to the AI agent. Please ensure the backend server is running and accessible.", 'ai');
+          renderMessage("Error: Could not connect to the AI agent. Please ensure the backend server is running.", 'ai');
         } finally {
           sendButton.disabled = false;
           loadingIndicator.style.display = 'none';
         }
       }
 
-      // Enter key support
       userInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !sendButton.disabled) {
           sendMessage();
