@@ -6,26 +6,33 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
+// ✅ API KEY section
 const API_KEY = process.env.API_KEY;
-const MODEL = process.env.MODEL;
 
-app.post("/chat", async (req, res) => {
+app.post("/api/tutor", async (req, res) => {
+  const { query } = req.body;
+
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(req.body),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${API_KEY}` // <-- API key used here
+        },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: query }] }]
+        })
       }
     );
 
     const data = await response.json();
     res.json(data);
-  } catch (err) {
-    console.error("Backend error:", err);
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error("Backend Error:", error);
+    res.status(500).json({ error: "Failed to connect to AI service" });
   }
 });
 
-app.listen(3000, () => console.log("✅ Backend running on http://localhost:3000"));
+app.listen(3000, () => console.log("✅ Backend running at http://localhost:3000"));
