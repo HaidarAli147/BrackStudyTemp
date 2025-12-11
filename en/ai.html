@@ -11,7 +11,8 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="fonts.googleapis.com" rel="stylesheet">
+  <!-- Correct Google Fonts link -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -70,17 +71,18 @@
 
     </div>
 
-    <!-- AI Agent JavaScript Logic (Points to your secure backend) -->
+    <!-- AI Agent JavaScript Logic -->
     <script>
-      // The URL of your secure backend server endpoint
-      const PROXY_SERVER_URL = 'http://localhost:3000/api/tutor'; 
+      // Secure backend proxy endpoint
+      const PROXY_SERVER_URL = 'http://localhost:3000/api/tutor';
+
+      // API Key (⚠️ In production, keep this hidden in backend!)
+      const API_KEY = "API_KEY";
 
       const chatHistory = document.getElementById('chatHistory');
       const userInput = document.getElementById('userInput');
       const sendButton = document.getElementById('sendButton');
       const loadingIndicator = document.getElementById('loadingIndicator');
-
-      const chatMessages = [];
 
       // Render message
       function renderMessage(text, sender) {
@@ -92,7 +94,7 @@
         contentDiv.textContent = text;
 
         messageDiv.appendChild(contentDiv);
-        chatHistory.appendChild(contentDiv); // Append contentDiv directly
+        chatHistory.appendChild(messageDiv); // ✅ fixed: append full messageDiv
         chatHistory.scrollTop = chatHistory.scrollHeight;
       }
 
@@ -114,11 +116,13 @@
         loadingIndicator.style.display = 'block';
 
         try {
-          // Fetch from YOUR secure server proxy
           const response = await fetch(PROXY_SERVER_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: query }) 
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${API_KEY}` // ✅ added API key
+            },
+            body: JSON.stringify({ query: query })
           });
 
           if (!response.ok) {
