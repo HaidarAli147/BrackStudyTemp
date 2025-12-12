@@ -1,5 +1,5 @@
-    from dotenv import load_dotenv
-    import os
+   from dotenv import load_dotenv
+import os
 
-    load_dotenv() # Load variables from .env
-    api_key = os.getenv('AIzaSyD7bMWG5eaV39VkXP4yhNTLQHVAYjpXpxI')
+load_dotenv()
+api_key = os.getenv("GEMINI_API_KEY")
