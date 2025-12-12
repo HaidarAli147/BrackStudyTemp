@@ -22,40 +22,40 @@
   </video>
 
   <!-- Language button -->
-  <button class="lang" onclick="window.location.href = '/index.html';">
+  <button class="lang" onclick="window.location.href='/index.html';">
     تغير اللغة
   </button>
 
   <!-- Navigation -->
-  <div class="top-sidebar">
+  <nav class="top-sidebar">
     <a href="/en/index.html">Home</a>
     <a href="/en/python.html">Python</a>
-    <a href="/en/Website.html">Website</a>
+    <a href="/en/website.html">Website</a>
     <a href="/en/ai.html">AI Agent</a>
-  </div>
+  </nav>
 
   <!-- Main Content -->
-  <div class="content">
+  <main class="content">
     <div id="chatContainer">
 
       <!-- Header -->
-      <div id="header">
+      <header id="header">
         <h2>AI Programming Tutor</h2>
         <p>Ask about HTML, CSS, JavaScript, Python, Java, or Swift.</p>
-      </div>
+      </header>
 
       <!-- Chat History -->
-      <div id="chatHistory" style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+      <section id="chatHistory" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
         <div id="initialMessage">
           <div class="bubble ai">
             Hello! I'm your AI tutor. How can I help you with your web and coding concepts?
           </div>
         </div>
-      </div>
+      </section>
 
       <!-- Input Form and Controls -->
-      <div id="inputControls" style="padding: 10px; border-top: 1px solid #ccc;">
-        <div id="inputWrapper" style="display: flex;">
+      <footer id="inputControls" style="padding: 10px; border-top: 1px solid #ccc;">
+        <div id="inputWrapper" style="display: flex; gap: 5px;">
           <input type="text" id="userInput" placeholder="Ask your question here..."
                  style="flex-grow: 1; padding: 5px; border: 1px solid #ccc;" autocomplete="off">
           <button id="sendButton" onclick="sendMessage()" style="padding: 5px 10px;">
@@ -66,75 +66,75 @@
         <div id="loadingIndicator" style="margin-top: 5px; color: #333; display: none;">
           <span>AI is thinking...</span>
         </div>
-      </div>
+      </footer>
 
     </div>
+  </main>
 
-    <!-- AI Agent JavaScript Logic -->
-    <script>
-      const PROXY_SERVER_URL = 'http://localhost:3000/api/tutor';
+  <!-- AI Agent JavaScript Logic -->
+  <script>
+    const PROXY_SERVER_URL = 'http://localhost:3000/api/tutor';
 
-      const chatHistory = document.getElementById('chatHistory');
-      const userInput = document.getElementById('userInput');
-      const sendButton = document.getElementById('sendButton');
-      const loadingIndicator = document.getElementById('loadingIndicator');
+    const chatHistory = document.getElementById('chatHistory');
+    const userInput = document.getElementById('userInput');
+    const sendButton = document.getElementById('sendButton');
+    const loadingIndicator = document.getElementById('loadingIndicator');
 
-      function renderMessage(text, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', sender);
+    function renderMessage(text, sender) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message', sender);
 
-        const contentDiv = document.createElement('div');
-        contentDiv.classList.add('bubble', sender);
-        contentDiv.textContent = text;
+      const contentDiv = document.createElement('div');
+      contentDiv.classList.add('bubble', sender);
+      contentDiv.textContent = text;
 
-        messageDiv.appendChild(contentDiv);
-        chatHistory.appendChild(messageDiv);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+      messageDiv.appendChild(contentDiv);
+      chatHistory.appendChild(messageDiv);
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    const initialMessageDiv = document.getElementById('initialMessage');
+    if (initialMessageDiv) {
+      initialMessageDiv.remove();
+      renderMessage("Hello! I'm your AI tutor. How can I help you with your web and coding concepts?", 'ai');
+    }
+
+    async function sendMessage() {
+      const query = userInput.value.trim();
+      if (!query) return;
+
+      renderMessage(query, 'user');
+      userInput.value = '';
+      sendButton.disabled = true;
+      loadingIndicator.style.display = 'block';
+
+      try {
+        const response = await fetch(PROXY_SERVER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+
+        if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+
+        const result = await response.json();
+        const aiText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        renderMessage(aiText || "Sorry, I received an empty or invalid response.", 'ai');
+
+      } catch (error) {
+        console.error("Fetch Error:", error);
+        renderMessage("Error: Could not connect to the AI agent. Please ensure the backend server is running.", 'ai');
+      } finally {
+        sendButton.disabled = false;
+        loadingIndicator.style.display = 'none';
       }
+    }
 
-      const initialMessageDiv = document.getElementById('initialMessage');
-      if (initialMessageDiv) {
-        initialMessageDiv.remove();
-        renderMessage("Hello! I'm your AI tutor. How can I help you with your web and coding concepts?", 'ai');
+    userInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && !sendButton.disabled) {
+        sendMessage();
       }
-
-      async function sendMessage() {
-        const query = userInput.value.trim();
-        if (!query) return;
-
-        renderMessage(query, 'user');
-        userInput.value = '';
-        sendButton.disabled = true;
-        loadingIndicator.style.display = 'block';
-
-        try {
-          const response = await fetch(PROXY_SERVER_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query })
-          });
-
-          if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-
-          const result = await response.json();
-          const aiText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-          renderMessage(aiText || "Sorry, I received an empty or invalid response.", 'ai');
-
-        } catch (error) {
-          console.error("Fetch Error:", error);
-          renderMessage("Error: Could not connect to the AI agent. Please ensure the backend server is running.", 'ai');
-        } finally {
-          sendButton.disabled = false;
-          loadingIndicator.style.display = 'none';
-        }
-      }
-
-      userInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !sendButton.disabled) {
-          sendMessage();
-        }
-      });
-    </script>
-  </div>
+    });
+  </script>
 </body>
 </html>
