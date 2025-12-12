@@ -73,7 +73,8 @@
 
   <!-- AI Agent JavaScript Logic -->
   <script>
-    const PROXY_SERVER_URL = 'http://localhost:3000/api/tutor';
+    // IMPORTANT: Replace this with your deployed backend URL (e.g. Vercel, Render, Railway)
+    const PROXY_SERVER_URL = 'https://your-deployed-backend.com/api/tutor';
 
     const chatHistory = document.getElementById('chatHistory');
     const userInput = document.getElementById('userInput');
@@ -123,7 +124,7 @@
 
       } catch (error) {
         console.error("Fetch Error:", error);
-        renderMessage("Error: Could not connect to the AI agent. Please ensure the backend server is running.", 'ai');
+        renderMessage("Error: Could not connect to the AI agent. Please ensure the backend server is deployed.", 'ai');
       } finally {
         sendButton.disabled = false;
         loadingIndicator.style.display = 'none';
