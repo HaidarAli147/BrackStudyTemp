@@ -8,25 +8,21 @@
   <link rel="stylesheet" href="/style.css">
   <meta name="google-adsense-account" content="ca-pub-4397239596468716">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- Logo video -->
   <video id="logo-video" autoplay loop muted playsinline>
     <source src="/logo.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
 
-  <!-- Language button -->
   <button class="lang" onclick="window.location.href='/index.html';">
     تغير اللغة
   </button>
 
-  <!-- Navigation -->
   <nav class="top-sidebar">
     <a href="/en/index.html">Home</a>
     <a href="/en/python.html">Python</a>
@@ -34,36 +30,24 @@
     <a href="/en/ai.html">AI Agent</a>
   </nav>
 
-  <!-- Main Content -->
   <main class="content">
     <div id="chatContainer">
 
-      <!-- Header -->
       <header id="header">
         <h2>AI Programming Tutor</h2>
         <p>Ask about HTML, CSS, JavaScript, Python, Java, or Swift.</p>
       </header>
 
-      <!-- Chat History -->
-      <section id="chatHistory" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
-        <div id="initialMessage">
-          <div class="bubble ai">
-            Hello! I'm your AI tutor. How can I help you with your web and coding concepts?
-          </div>
-        </div>
-      </section>
+      <section id="chatHistory">
+        </section>
 
-      <!-- Input Form and Controls -->
-      <footer id="inputControls" style="padding: 10px; border-top: 1px solid #ccc;">
-        <div id="inputWrapper" style="display: flex; gap: 5px;">
-          <input type="text" id="userInput" placeholder="Ask your question here..."
-                 style="flex-grow: 1; padding: 5px; border: 1px solid #ccc;" autocomplete="off">
-          <button id="sendButton" onclick="sendMessage()" style="padding: 5px 10px;">
-            Send
-          </button>
+      <footer id="inputControls">
+        <div id="inputWrapper">
+          <input type="text" id="userInput" placeholder="Ask your question here..." autocomplete="off">
+          <button id="sendButton" onclick="sendMessage()">Send</button>
         </div>
-        <!-- Loading Indicator -->
-        <div id="loadingIndicator" style="margin-top: 5px; color: #333; display: none;">
+        
+        <div id="loadingIndicator">
           <span>AI is thinking...</span>
         </div>
       </footer>
@@ -71,9 +55,8 @@
     </div>
   </main>
 
-  <!-- AI Agent JavaScript Logic -->
   <script>
-    // IMPORTANT: Replace this with your deployed backend URL (e.g. Vercel, Render, Railway)
+    // Replace with your deployed backend URL
     const PROXY_SERVER_URL = 'https://your-deployed-backend.com/api/tutor';
 
     const chatHistory = document.getElementById('chatHistory');
@@ -94,11 +77,10 @@
       chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
-    const initialMessageDiv = document.getElementById('initialMessage');
-    if (initialMessageDiv) {
-      initialMessageDiv.remove();
+    // Display initial message on load
+    window.onload = () => {
       renderMessage("Hello! I'm your AI tutor. How can I help you with your web and coding concepts?", 'ai');
-    }
+    };
 
     async function sendMessage() {
       const query = userInput.value.trim();
@@ -116,15 +98,17 @@
           body: JSON.stringify({ query })
         });
 
-        if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+        if (!response.ok) throw new Error(`Network response error`);
 
         const result = await response.json();
-        const aiText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-        renderMessage(aiText || "Sorry, I received an empty or invalid response.", 'ai');
+        // Adjusting for common API response structures
+        const aiText = result?.reply || result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        renderMessage(aiText || "Sorry, I received an empty response.", 'ai');
 
       } catch (error) {
         console.error("Fetch Error:", error);
-        renderMessage("Error: Could not connect to the AI agent. Please ensure the backend server is deployed.", 'ai');
+        renderMessage("Error: Could not connect to the AI agent.", 'ai');
       } finally {
         sendButton.disabled = false;
         loadingIndicator.style.display = 'none';
